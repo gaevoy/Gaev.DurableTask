@@ -19,7 +19,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         private async Task<DateTime> Run(TimeSpan delay, string id)
         {
-            using (var process = await _factory.Spawn(id))
+            using (var process = _factory.Spawn(id))
             {
                 await process.Delay(delay, "Delayed");
                 return await process.Do(() => Task.FromResult(DateTime.UtcNow), "Executed");
@@ -28,7 +28,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _factory.RestoreProcess(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
+            _factory.SetEntryPoint(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
         }
     }
 }

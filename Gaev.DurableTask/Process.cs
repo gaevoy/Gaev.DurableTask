@@ -14,7 +14,7 @@ namespace Gaev.DurableTask
         {
             _id = id;
             _storage = storage;
-            Start();
+            Start(); // Start on demand only when 1st Do requested
         }
 
         private void Start()

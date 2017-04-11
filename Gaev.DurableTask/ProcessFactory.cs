@@ -15,23 +15,31 @@ namespace Gaev.DurableTask
         {
             _storage = storage;
         }
-        public Task<IProcess> Spawn(string id)
+        public IProcess Spawn(string id)
         {
-            return Task.FromResult<IProcess>(new Process(id, _storage));
+            return new Process(id, _storage);
         }
 
-        public void RestoreProcess(Func<string, bool> idSelector, Func<string, Task> entryPoint)
+        public void SetEntryPoint(Func<string, bool> idSelector, Func<string, Task> entryPoint)
         {
             lock (_registerations)
                 _registerations.Add(new Registeration(entryPoint, idSelector));
         }
 
-        public async Task Initialize()
+        public async Task RunSuspended()
         {
             var tasks = (from id in await _storage.GetPendingProcessIds()
                          from registeration in _registerations
                          where registeration.IdSelector(id)
                          select registeration.EntryPoint(id)).ToArray();
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch
+            {
+                // Ignore 
+            }
         }
 
         private class Registeration

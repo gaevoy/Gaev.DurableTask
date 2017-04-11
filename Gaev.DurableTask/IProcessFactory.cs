@@ -5,8 +5,8 @@ namespace Gaev.DurableTask
 {
     public interface IProcessFactory
     {
-        Task<IProcess> Spawn(string id);
-        void RestoreProcess(Func<string, bool> idSelector, Func<string, Task> entryPoint);
-        Task Initialize();
+        IProcess Spawn(string id);
+        void SetEntryPoint(Func<string, bool> idSelector, Func<string, Task> entryPoint);
+        Task RunSuspended();
     }
 }

@@ -45,12 +45,12 @@ namespace Gaev.DurableTask.Tests
             }, processId);
             await onFirstCalled.Task;
             var onRestored = new TaskCompletionSource<string>();
-            factory.RestoreProcess(id => id == processId, id => TestProcess(factory, null, input =>
+            factory.SetEntryPoint(id => id == processId, id => TestProcess(factory, null, input =>
             {
                 onRestored.SetResult(input);
                 return Task.CompletedTask;
             }, id));
-            await factory.Initialize();
+            await factory.RunSuspended();
             var expectedInput = await onRestored.Task;
 
             // Then
@@ -73,12 +73,12 @@ namespace Gaev.DurableTask.Tests
             }, processId);
             await onFirstCalled.Task;
             var onRestored = new TaskCompletionSource<ProcessException>();
-            factory.RestoreProcess(id => id == processId, id => TestProcessWithError(factory, exception =>
+            factory.SetEntryPoint(id => id == processId, id => TestProcessWithError(factory, exception =>
             {
                 onRestored.SetResult(exception);
                 return Task.CompletedTask;
             }, id));
-            await factory.Initialize();
+            await factory.RunSuspended();
             await onRestored.Task;
 
             // Then
@@ -96,11 +96,11 @@ namespace Gaev.DurableTask.Tests
             // When
             await TestProcessCompletion(factory, () => { }, processId);
             var isRestored = false;
-            factory.RestoreProcess(id => id == processId, id => TestProcessCompletion(factory, () =>
+            factory.SetEntryPoint(id => id == processId, id => TestProcessCompletion(factory, () =>
             {
                 isRestored = true;
             }, id));
-            await factory.Initialize();
+            await factory.RunSuspended();
             await Task.Delay(1000);
 
             // Then
@@ -109,7 +109,7 @@ namespace Gaev.DurableTask.Tests
 
         private async Task TestProcess(IProcessFactory factory, string input, Func<string, Task> callback, string id)
         {
-            using (var process = await factory.Spawn(id))
+            using (var process = factory.Spawn(id))
             {
                 input = await process.Attach(input, "1");
                 await callback(input);
@@ -118,7 +118,7 @@ namespace Gaev.DurableTask.Tests
 
         private async Task TestProcessWithError(IProcessFactory factory, Func<ProcessException, Task> callback, string id)
         {
-            using (var process = await factory.Spawn(id))
+            using (var process = factory.Spawn(id))
             {
                 try
                 {
@@ -135,7 +135,7 @@ namespace Gaev.DurableTask.Tests
 
         private async Task TestProcessCompletion(IProcessFactory factory, Action callback, string id)
         {
-            using (var process = await factory.Spawn(id))
+            using (var process = factory.Spawn(id))
             {
                 await process.Do(() => Task.Delay(100), "1");
                 callback();

@@ -34,7 +34,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         private async Task Transfer(State input, string id)
         {
-            using (var process = await _factory.Spawn(id))
+            using (var process = _factory.Spawn(id))
             {
                 var state = await process.Attach(input, "StateSaved");
                 string fromTranId = null;
@@ -59,7 +59,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _factory.RestoreProcess(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
+            _factory.SetEntryPoint(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
         }
     }
 }
