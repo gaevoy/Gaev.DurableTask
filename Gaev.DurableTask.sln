@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask", "Gaev.DurableTask\Gaev.DurableTask.csproj", "{8D3CB1E2-9322-49D1-A620-7D1E9BD89E19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.Tests", "Gaev.DurableTask.Tests\Gaev.DurableTask.Tests.csproj", "{C36A3907-B1CF-4B4B-AC46-0153AC83D605}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D3CB1E2-9322-49D1-A620-7D1E9BD89E19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D3CB1E2-9322-49D1-A620-7D1E9BD89E19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D3CB1E2-9322-49D1-A620-7D1E9BD89E19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D3CB1E2-9322-49D1-A620-7D1E9BD89E19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C36A3907-B1CF-4B4B-AC46-0153AC83D605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C36A3907-B1CF-4B4B-AC46-0153AC83D605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C36A3907-B1CF-4B4B-AC46-0153AC83D605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C36A3907-B1CF-4B4B-AC46-0153AC83D605}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
