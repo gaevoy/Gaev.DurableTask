@@ -13,13 +13,22 @@ namespace Gaev.DurableTask.Tests
     public class ProcessFlowTests
     {
         [Test]
-        public async Task ShouldRestore()
+        public async Task Host()
         {
             // Given
             var host = new ProcessHost(new InMemoryJsonProcessStorage());
-            var processId = Guid.NewGuid().ToString();
-            var actualInput = Guid.NewGuid().ToString();
+            var companyId = Guid.NewGuid().ToString();
+            var creditCard = "123";
+            var processId = new CreditCardFlow(host).Start(companyId, creditCard);
+            var process = host.Spawn(processId);
 
+            // When
+            await Task.Delay(1000);
+            // await process.Send("onFirstTransaction|" + creditCard);
+            await process.Send("onDeleted|" + creditCard);
+            await Task.Delay(3000);
+            Console.WriteLine("Pause");
+            await Task.Delay(3000);
         }
 
 
@@ -47,7 +56,7 @@ namespace Gaev.DurableTask.Tests
                     creditCard = await process.Attach(creditCard, "2");
                     var email = await process.Do(() => GetEmail(companyId), "3");
                     await process.Do(() => SendEmail(email, $"{creditCard} was assigned to you"), "4");
-                    var onCheckTime = process.Delay(TimeSpan.FromMinutes(5), "5");
+                    var onCheckTime = process.Delay(TimeSpan.FromSeconds(5), "5");
                     var subscription = process.Subscribe<string>();
                     var onFirstTransaction = process.Do(() => subscription.On(msg => msg == "onFirstTransaction|" + creditCard), "6");
                     var onDeleted = process.Do(() => subscription.On(msg => msg == "onDeleted|" + creditCard), "7");
@@ -55,17 +64,20 @@ namespace Gaev.DurableTask.Tests
                     var _ = Task.Run(async () =>
                     {
                         await onCheckTime;
+                        if (onDeleted.IsCompleted) return;
                         if (!onFirstTransaction.IsCompleted)
                             await process.Do(() => SendEmail(email, $"{creditCard} is inactive long time"), "8");
                     });
                     var __ = Task.Run(async () =>
                     {
                         await onFirstTransaction;
+                        if (onDeleted.IsCompleted) return;
                         await process.Do(() => SendEmail(email, $"{creditCard} received 1st transaction"), "9");
                     });
                     var ___ = subscription.StartReceiving();
 
                     await onDeleted;
+                    // Cancel all pending tasks
                     await process.Do(() => SendEmail(email, $"{creditCard} was deleted"), "10");
                 }
             }
