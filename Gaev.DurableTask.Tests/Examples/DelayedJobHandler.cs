@@ -5,11 +5,11 @@ namespace Gaev.DurableTask.Tests.Examples
 {
     public class DelayedJobHandler
     {
-        private readonly IProcessFactory _factory;
+        private readonly IProcessHost _host;
 
-        public DelayedJobHandler(IProcessFactory factory)
+        public DelayedJobHandler(IProcessHost host)
         {
-            _factory = factory;
+            _host = host;
         }
 
         public Task<DateTime> StartJob(TimeSpan delay)
@@ -19,7 +19,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         private async Task<DateTime> Run(TimeSpan delay, string id)
         {
-            using (var process = _factory.Spawn(id))
+            using (var process = _host.Spawn(id))
             {
                 await process.Delay(delay, "Delayed");
                 return await process.Do(() => Task.FromResult(DateTime.UtcNow), "Executed");
@@ -28,7 +28,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _factory.SetEntryPoint(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
+            _host.SetEntryPoint(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
         }
     }
 }

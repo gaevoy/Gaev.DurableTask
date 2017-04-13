@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 
 namespace Gaev.DurableTask
 {
-    public interface IProcessFactory
+    public interface IProcessHost
     {
         IProcess Spawn(string id);
         void SetEntryPoint(Func<string, bool> idSelector, Func<string, Task> entryPoint);
-        Task RunSuspended();
+        // TODO: Pass a CancellationToken, use the CancellationToken to every process
+        Task Run();
     }
 }

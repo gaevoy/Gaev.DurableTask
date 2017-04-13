@@ -5,7 +5,7 @@ namespace Gaev.DurableTask.Tests.Examples
 {
     public class MoneyTransferHandler
     {
-        private readonly IProcessFactory _factory;
+        private readonly IProcessHost _host;
         private readonly IAccountBusinessLogic _accounts;
 
         private class State
@@ -15,9 +15,9 @@ namespace Gaev.DurableTask.Tests.Examples
             public decimal Amount { get; set; }
         }
 
-        public MoneyTransferHandler(IProcessFactory factory, IAccountBusinessLogic accounts)
+        public MoneyTransferHandler(IProcessHost host, IAccountBusinessLogic accounts)
         {
-            _factory = factory;
+            _host = host;
             _accounts = accounts;
         }
 
@@ -34,7 +34,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         private async Task Transfer(State input, string id)
         {
-            using (var process = _factory.Spawn(id))
+            using (var process = _host.Spawn(id))
             {
                 var state = await process.Attach(input, "StateSaved");
                 string fromTranId = null;
@@ -59,7 +59,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _factory.SetEntryPoint(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
+            _host.SetEntryPoint(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
         }
     }
 }

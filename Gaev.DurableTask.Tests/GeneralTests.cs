@@ -14,13 +14,13 @@ namespace Gaev.DurableTask.Tests
         public async Task ShouldRun()
         {
             // Given
-            var factory = new ProcessFactory(new InMemoryJsonProcessStorage());
+            var host = new ProcessHost(new InMemoryJsonProcessStorage());
             var duration = Stopwatch.StartNew();
             var now = DateTime.UtcNow;
             var delay = TimeSpan.FromMilliseconds(300);
 
             // When
-            var date = await new DelayedJobHandler(factory).StartJob(delay);
+            var date = await new DelayedJobHandler(host).StartJob(delay);
             duration.Stop();
 
             // Then
@@ -32,25 +32,27 @@ namespace Gaev.DurableTask.Tests
         public async Task ShouldRestore()
         {
             // Given
-            var factory = new ProcessFactory(new InMemoryJsonProcessStorage());
+            var storage = new InMemoryJsonProcessStorage();
+            var host = new ProcessHost(storage);
             var processId = Guid.NewGuid().ToString();
             var actualInput = Guid.NewGuid().ToString();
 
             // When
             var onFirstCalled = new TaskCompletionSource<object>();
-            var _ = TestProcess(factory, actualInput, __ =>
+            var _ = TestProcess(host, actualInput, __ =>
             {
                 onFirstCalled.SetResult(null);
                 return Task.Delay(50000); // exit emulation
             }, processId);
             await onFirstCalled.Task;
+            host = new ProcessHost(storage);
             var onRestored = new TaskCompletionSource<string>();
-            factory.SetEntryPoint(id => id == processId, id => TestProcess(factory, null, input =>
+            host.SetEntryPoint(id => id == processId, id => TestProcess(host, null, input =>
             {
                 onRestored.SetResult(input);
                 return Task.CompletedTask;
             }, id));
-            await factory.RunSuspended();
+            await host.Run();
             var expectedInput = await onRestored.Task;
 
             // Then
@@ -61,24 +63,26 @@ namespace Gaev.DurableTask.Tests
         public async Task ShouldRestoreException()
         {
             // Given
-            var factory = new ProcessFactory(new InMemoryJsonProcessStorage());
+            var storage = new InMemoryJsonProcessStorage();
+            var host = new ProcessHost(storage);
             var processId = Guid.NewGuid().ToString();
 
             // When
             var onFirstCalled = new TaskCompletionSource<ProcessException>();
-            var _ = TestProcessWithError(factory, async exception =>
+            var _ = TestProcessWithError(host, async exception =>
             {
                 onFirstCalled.SetResult(exception);
                 await Task.Delay(50000); // exit emulation
             }, processId);
             await onFirstCalled.Task;
+            host = new ProcessHost(storage);
             var onRestored = new TaskCompletionSource<ProcessException>();
-            factory.SetEntryPoint(id => id == processId, id => TestProcessWithError(factory, exception =>
+            host.SetEntryPoint(id => id == processId, id => TestProcessWithError(host, exception =>
             {
                 onRestored.SetResult(exception);
                 return Task.CompletedTask;
             }, id));
-            await factory.RunSuspended();
+            await host.Run();
             await onRestored.Task;
 
             // Then
@@ -90,35 +94,37 @@ namespace Gaev.DurableTask.Tests
         public async Task ShouldComplete()
         {
             // Given
-            var factory = new ProcessFactory(new InMemoryJsonProcessStorage());
+            var storage = new InMemoryJsonProcessStorage();
+            var host = new ProcessHost(storage);
             var processId = Guid.NewGuid().ToString();
 
             // When
-            await TestProcessCompletion(factory, () => { }, processId);
+            await TestProcessCompletion(host, () => { }, processId);
+            host = new ProcessHost(storage);
             var isRestored = false;
-            factory.SetEntryPoint(id => id == processId, id => TestProcessCompletion(factory, () =>
+            host.SetEntryPoint(id => id == processId, id => TestProcessCompletion(host, () =>
             {
                 isRestored = true;
             }, id));
-            await factory.RunSuspended();
+            await host.Run();
             await Task.Delay(1000);
 
             // Then
             Assert.IsFalse(isRestored);
         }
 
-        private async Task TestProcess(IProcessFactory factory, string input, Func<string, Task> callback, string id)
+        private async Task TestProcess(IProcessHost host, string input, Func<string, Task> callback, string id)
         {
-            using (var process = factory.Spawn(id))
+            using (var process = host.Spawn(id))
             {
                 input = await process.Attach(input, "1");
                 await callback(input);
             }
         }
 
-        private async Task TestProcessWithError(IProcessFactory factory, Func<ProcessException, Task> callback, string id)
+        private async Task TestProcessWithError(IProcessHost host, Func<ProcessException, Task> callback, string id)
         {
-            using (var process = factory.Spawn(id))
+            using (var process = host.Spawn(id))
             {
                 try
                 {
@@ -133,9 +139,9 @@ namespace Gaev.DurableTask.Tests
             }
         }
 
-        private async Task TestProcessCompletion(IProcessFactory factory, Action callback, string id)
+        private async Task TestProcessCompletion(IProcessHost host, Action callback, string id)
         {
-            using (var process = factory.Spawn(id))
+            using (var process = host.Spawn(id))
             {
                 await process.Do(() => Task.Delay(100), "1");
                 callback();

@@ -42,8 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IProcess.cs" />
-    <Compile Include="IProcessFactory.cs" />
-    <Compile Include="ProcessFactory.cs" />
+    <Compile Include="IProcessHost.cs" />
+    <Compile Include="ProcessHost.cs" />
     <Compile Include="ProcessException.cs" />
     <Compile Include="Storage\InMemoryProcessStorage.cs" />
     <Compile Include="Storage\IProcessStorage.cs" />

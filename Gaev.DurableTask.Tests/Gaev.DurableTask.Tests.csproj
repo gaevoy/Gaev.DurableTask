@@ -43,6 +43,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProcessFlowTests.cs" />
     <Compile Include="GeneralTests.cs" />
     <Compile Include="Examples\DelayedJobHandler.cs" />
     <Compile Include="Examples\IAccountBusinessLogic.cs" />

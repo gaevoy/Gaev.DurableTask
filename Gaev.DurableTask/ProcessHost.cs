@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,18 +7,19 @@ using Gaev.DurableTask.Storage;
 
 namespace Gaev.DurableTask
 {
-    public class ProcessFactory : IProcessFactory
+    public class ProcessHost : IProcessHost
     {
         private readonly IProcessStorage _storage;
         private readonly List<Registeration> _registerations = new List<Registeration>();
+        private readonly ConcurrentDictionary<string, IProcess> _process = new ConcurrentDictionary<string, IProcess>();
 
-        public ProcessFactory(IProcessStorage storage)
+        public ProcessHost(IProcessStorage storage)
         {
             _storage = storage;
         }
-        public IProcess Spawn(string id)
+        public IProcess Spawn(string processId)
         {
-            return new Process(id, _storage);
+            return _process.GetOrAdd(processId, id => new Process(id, _storage));
         }
 
         public void SetEntryPoint(Func<string, bool> idSelector, Func<string, Task> entryPoint)
@@ -26,7 +28,7 @@ namespace Gaev.DurableTask
                 _registerations.Add(new Registeration(entryPoint, idSelector));
         }
 
-        public async Task RunSuspended()
+        public async Task Run()
         {
             var tasks = (from id in await _storage.GetPendingProcessIds()
                          from registeration in _registerations
