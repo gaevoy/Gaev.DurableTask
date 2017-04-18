@@ -1,0 +1,1 @@
+﻿DELETE FROM DurableTasks WHERE ProcessId = @ProcessId

@@ -1,0 +1,1 @@
+﻿SELECT ProcessId FROM DurableTasks GROUP BY ProcessId

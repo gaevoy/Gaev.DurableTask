@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Gaev.DurableTask.Json;
 using Gaev.DurableTask.Storage;
 using Newtonsoft.Json;
 

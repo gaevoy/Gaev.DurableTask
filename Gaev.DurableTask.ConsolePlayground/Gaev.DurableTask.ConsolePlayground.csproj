@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C36A3907-B1CF-4B4B-AC46-0153AC83D605}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{9D40F717-75E8-4FDE-9AD7-475CC436EEB7}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Gaev.DurableTask.Tests</RootNamespace>
-    <AssemblyName>Gaev.DurableTask.Tests</AssemblyName>
+    <RootNamespace>Gaev.DurableTask.ConsolePlayground</RootNamespace>
+    <AssemblyName>Gaev.DurableTask.ConsolePlayground</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,34 +33,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.6.1\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ProcessFlowTests.cs" />
-    <Compile Include="GeneralTests.cs" />
-    <Compile Include="Examples\DelayedJobHandler.cs" />
-    <Compile Include="Examples\IAccountBusinessLogic.cs" />
-    <Compile Include="Examples\MoneyTransferHandler.cs" />
-    <Compile Include="Storage\InMemoryJsonProcessStorage.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gaev.DurableTask.Json\Gaev.DurableTask.Json.csproj">
-      <Project>{C0E2EE39-4950-468A-9FE4-936F38324BC2}</Project>
+      <Project>{c0e2ee39-4950-468a-9fe4-936f38324bc2}</Project>
       <Name>Gaev.DurableTask.Json</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Gaev.DurableTask.MsSql\Gaev.DurableTask.MsSql.csproj">
+      <Project>{63f1f58b-bf98-4ffb-9ae1-f2077535773b}</Project>
+      <Name>Gaev.DurableTask.MsSql</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gaev.DurableTask\Gaev.DurableTask.csproj">
       <Project>{8d3cb1e2-9322-49d1-a620-7d1e9bd89e19}</Project>
