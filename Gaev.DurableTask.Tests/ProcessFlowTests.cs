@@ -21,7 +21,7 @@ namespace Gaev.DurableTask.Tests
             var creditCardFlow = new CreditCardFlow(host);
             creditCardFlow.RegisterProcess();
             var processId = creditCardFlow.Start(companyId, creditCard);
-            var process = (CreditCardFlow.MyProcess)host.Spawn(processId);
+            var process = (CreditCardFlow.MyProcess)host.Get(processId);
 
             // When
             process.RaiseOnTransactionAppeared();
@@ -30,7 +30,6 @@ namespace Gaev.DurableTask.Tests
             Console.WriteLine("Pause");
             await Task.Delay(3000);
         }
-
 
         public class CreditCardFlow
         {
@@ -50,7 +49,7 @@ namespace Gaev.DurableTask.Tests
 
             private async Task Run(string processId, string companyId = null, string creditCard = null)
             {
-                using (var process = (MyProcess)_host.Spawn(processId))
+                using (var process = _host.Spawn(processId).As<MyProcess>())
                 {
                     companyId = await process.Attach(companyId, "1");
                     creditCard = await process.Attach(creditCard, "2");

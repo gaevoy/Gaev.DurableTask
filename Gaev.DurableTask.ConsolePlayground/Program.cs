@@ -12,13 +12,14 @@ namespace Gaev.DurableTask.ConsolePlayground
             var host = new ProcessHost(new MsSqlProcessStorage(connectionString));
 
             var companyId = Guid.NewGuid().ToString();
-            var creditCard = "555";
+            var creditCard = "111";
             var creditCardFlow = new CreditCardFlow(host);
             creditCardFlow.RegisterProcess();
-            var _ = host.Run();
-            //creditCardFlow.Start(companyId, creditCard);
-            //((CreditCardFlow.MyProcess)host.Spawn(nameof(CreditCardFlow) + creditCard)).RaiseOnTransactionAppeared();
-            ((CreditCardFlow.MyProcess)host.Spawn(nameof(CreditCardFlow) + "333")).RaiseOnCreditCardDeleted();
+            host.Start().Wait();
+            if (host.Get(nameof(CreditCardFlow) + creditCard) == null)
+                creditCardFlow.Start(companyId, creditCard);
+            //host.Get(nameof(CreditCardFlow) + "111").As<CreditCardProcess>()?.RaiseOnTransactionAppeared();
+            //host.Get(nameof(CreditCardFlow) + "111").As<CreditCardProcess>()?.RaiseOnCreditCardDeleted();
             Console.Read();
         }
     }

@@ -52,7 +52,7 @@ namespace Gaev.DurableTask.Tests
                 onRestored.SetResult(input);
                 return Task.CompletedTask;
             }, id));
-            await host.Run();
+            await host.Start();
             var expectedInput = await onRestored.Task;
 
             // Then
@@ -82,7 +82,7 @@ namespace Gaev.DurableTask.Tests
                 onRestored.SetResult(exception);
                 return Task.CompletedTask;
             }, id));
-            await host.Run();
+            await host.Start();
             await onRestored.Task;
 
             // Then
@@ -106,7 +106,7 @@ namespace Gaev.DurableTask.Tests
             {
                 isRestored = true;
             }, id));
-            await host.Run();
+            await host.Start();
             await Task.Delay(1000);
 
             // Then

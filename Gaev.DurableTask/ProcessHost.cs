@@ -17,6 +17,7 @@ namespace Gaev.DurableTask
         {
             _storage = storage;
         }
+
         public IProcess Spawn(string processId)
         {
             return _process.GetOrAdd(processId, id =>
@@ -30,26 +31,26 @@ namespace Gaev.DurableTask
             });
         }
 
+        public IProcess Get(string id)
+        {
+            IProcess result;
+            _process.TryGetValue(id, out result);
+            return result;
+        }
+
         public void Register(ProcessRegistration registration)
         {
             lock (_registrations)
                 _registrations.Add(registration);
         }
 
-        public async Task Run()
+        public async Task Start()
         {
             var tasks = (from id in await _storage.GetPendingProcessIds()
                          from registeration in _registrations
                          where registeration.IdSelector(id)
                          select registeration.EntryPoint(id)).ToArray();
-            try
-            {
-                await Task.WhenAll(tasks);
-            }
-            catch
-            {
-                // Ignore 
-            }
+            var _ = Task.WhenAll(tasks);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Gaev.DurableTask.ConsolePlayground
 
         private async Task Run(string processId, string companyId = null, string creditCard = null)
         {
-            using (var process = (MyProcess)_host.Spawn(processId))
+            using (var process = _host.Spawn(processId).As<CreditCardProcess>())
             {
                 companyId = await process.Attach(companyId, "1");
                 creditCard = await process.Attach(creditCard, "2");
@@ -60,7 +60,7 @@ namespace Gaev.DurableTask.ConsolePlayground
         {
             IdSelector = id => id.StartsWith(nameof(CreditCardFlow)),
             EntryPoint = id => Run(id),
-            ProcessWrapper = p => new MyProcess(p)
+            ProcessWrapper = p => new CreditCardProcess(p)
         });
 
         private async Task<string> GetEmail(string companyId)
@@ -76,26 +76,5 @@ namespace Gaev.DurableTask.ConsolePlayground
         }
 
         private static Task EmulateAsync() => Task.Delay(5);
-
-        public class MyProcess : IProcess
-        {
-            private readonly IProcess _underlying;
-
-            public MyProcess(IProcess underlying)
-            {
-                _underlying = underlying;
-            }
-
-            public void Dispose() => _underlying.Dispose();
-            public Task<T> Do<T>(Func<Task<T>> act, string id) => _underlying.Do(act, id);
-
-            private readonly TaskCompletionSource<object> _onTransactionAppeared = new TaskCompletionSource<object>();
-            public void RaiseOnTransactionAppeared() => _onTransactionAppeared.TrySetResult(null);
-            public Task OnTransactionAppeared() => _onTransactionAppeared.Task;
-
-            private readonly TaskCompletionSource<object> _onCreditCardDeleted = new TaskCompletionSource<object>();
-            public void RaiseOnCreditCardDeleted() => _onCreditCardDeleted.TrySetResult(null);
-            public Task OnCreditCardDeleted() => _onCreditCardDeleted.Task;
-        }
     }
 }

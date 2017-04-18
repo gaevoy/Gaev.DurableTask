@@ -13,6 +13,7 @@ namespace Gaev.DurableTask
                 return Void.Nothing;
             }, id);
         }
+
         public static Task Delay(this IProcess process, TimeSpan delay, string id)
         {
             return process.Do(async () =>
@@ -22,6 +23,11 @@ namespace Gaev.DurableTask
                 if (delay > TimeSpan.Zero)
                     await process.Do(() => Task.Delay(delay), id + ".Completed");
             }, id);
+        }
+
+        public static T As<T>(this IProcess process) where T : IProcess
+        {
+            return (T)process;
         }
 
         public static Task<T> Attach<T>(this IProcess process, T value, string id)
