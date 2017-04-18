@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Gaev.DurableTask
 {
-    public static class ProcessExt
+    public static class Ext
     {
         public static Task Do(this IProcess process, Func<Task> act, string id)
         {
@@ -27,6 +27,15 @@ namespace Gaev.DurableTask
         public static Task<T> Attach<T>(this IProcess process, T value, string id)
         {
             return process.Do(() => Task.FromResult(value), id);
+        }
+
+        public static void Register(this IProcessHost processHost, Func<string, bool> idSelector, Func<string, Task> entryPoint)
+        {
+            processHost.Register(new ProcessRegistration
+            {
+                IdSelector = idSelector,
+                EntryPoint = entryPoint
+            });
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Gaev.DurableTask.Tests
         public async Task ShouldRun()
         {
             // Given
-            var host = new ProcessHost(new InMemoryJsonProcessStorage());
+            var host = new ProcessHost(new InMemoryJsonProcessStorage()).WithoutRegistration();
             var duration = Stopwatch.StartNew();
             var now = DateTime.UtcNow;
             var delay = TimeSpan.FromMilliseconds(300);
@@ -33,7 +33,7 @@ namespace Gaev.DurableTask.Tests
         {
             // Given
             var storage = new InMemoryJsonProcessStorage();
-            var host = new ProcessHost(storage);
+            var host = new ProcessHost(storage).WithoutRegistration();
             var processId = Guid.NewGuid().ToString();
             var actualInput = Guid.NewGuid().ToString();
 
@@ -47,7 +47,7 @@ namespace Gaev.DurableTask.Tests
             await onFirstCalled.Task;
             host = new ProcessHost(storage);
             var onRestored = new TaskCompletionSource<string>();
-            host.SetEntryPoint(id => id == processId, id => TestProcess(host, null, input =>
+            host.Register(id => id == processId, id => TestProcess(host, null, input =>
             {
                 onRestored.SetResult(input);
                 return Task.CompletedTask;
@@ -64,7 +64,7 @@ namespace Gaev.DurableTask.Tests
         {
             // Given
             var storage = new InMemoryJsonProcessStorage();
-            var host = new ProcessHost(storage);
+            var host = new ProcessHost(storage).WithoutRegistration();
             var processId = Guid.NewGuid().ToString();
 
             // When
@@ -77,7 +77,7 @@ namespace Gaev.DurableTask.Tests
             await onFirstCalled.Task;
             host = new ProcessHost(storage);
             var onRestored = new TaskCompletionSource<ProcessException>();
-            host.SetEntryPoint(id => id == processId, id => TestProcessWithError(host, exception =>
+            host.Register(id => id == processId, id => TestProcessWithError(host, exception =>
             {
                 onRestored.SetResult(exception);
                 return Task.CompletedTask;
@@ -95,14 +95,14 @@ namespace Gaev.DurableTask.Tests
         {
             // Given
             var storage = new InMemoryJsonProcessStorage();
-            var host = new ProcessHost(storage);
+            var host = new ProcessHost(storage).WithoutRegistration();
             var processId = Guid.NewGuid().ToString();
 
             // When
             await TestProcessCompletion(host, () => { }, processId);
             host = new ProcessHost(storage);
             var isRestored = false;
-            host.SetEntryPoint(id => id == processId, id => TestProcessCompletion(host, () =>
+            host.Register(id => id == processId, id => TestProcessCompletion(host, () =>
             {
                 isRestored = true;
             }, id));
@@ -146,6 +146,20 @@ namespace Gaev.DurableTask.Tests
                 await process.Do(() => Task.Delay(100), "1");
                 callback();
             }
+        }
+    }
+
+    public static class ProcessHostExt
+    {
+        public static ProcessHost WithoutRegistration(this ProcessHost processHost)
+        {
+            processHost.Register(new ProcessRegistration
+            {
+                IdSelector = id => true,
+                EntryPoint = id => Task.CompletedTask
+            });
+
+            return processHost;
         }
     }
 }

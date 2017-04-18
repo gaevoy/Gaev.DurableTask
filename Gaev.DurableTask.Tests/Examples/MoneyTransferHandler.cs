@@ -59,7 +59,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _host.SetEntryPoint(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
+            _host.Register(id => id.StartsWith(nameof(MoneyTransferHandler)), id => Transfer(null, id));
         }
     }
 }

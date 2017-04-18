@@ -9,8 +9,6 @@ namespace Gaev.DurableTask
         private readonly string _id;
         private readonly IProcessStorage _storage;
         private bool _isCompleted;
-        private TaskCompletionSource<object> _pendingMessage = new TaskCompletionSource<object>();
-        private TaskCompletionSource<object> _onMessageReceived = new TaskCompletionSource<object>();
 
         // TODO: Pass a CancellationToken, don't save OperationCancalledException
         public Process(string id, IProcessStorage storage)
@@ -64,21 +62,6 @@ namespace Gaev.DurableTask
             if (result.Exception != null)
                 throw result.Exception;
             return result.Value;
-        }
-
-        public async Task Send<T>(T message)
-        {
-            _onMessageReceived = new TaskCompletionSource<object>();
-            _pendingMessage.SetResult(message);
-            await _onMessageReceived.Task;
-        }
-
-        public async Task<T> Receive<T>()
-        {
-            var message = await _pendingMessage.Task;
-            _pendingMessage = new TaskCompletionSource<object>();
-            _onMessageReceived.TrySetResult(null);
-            return (T)message;
         }
     }
 }

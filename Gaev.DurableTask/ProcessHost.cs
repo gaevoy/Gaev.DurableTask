@@ -10,7 +10,7 @@ namespace Gaev.DurableTask
     public class ProcessHost : IProcessHost
     {
         private readonly IProcessStorage _storage;
-        private readonly List<Registeration> _registerations = new List<Registeration>();
+        private readonly List<ProcessRegistration> _registrations = new List<ProcessRegistration>();
         private readonly ConcurrentDictionary<string, IProcess> _process = new ConcurrentDictionary<string, IProcess>();
 
         public ProcessHost(IProcessStorage storage)
@@ -19,19 +19,27 @@ namespace Gaev.DurableTask
         }
         public IProcess Spawn(string processId)
         {
-            return _process.GetOrAdd(processId, id => new Process(id, _storage));
+            return _process.GetOrAdd(processId, id =>
+            {
+                ProcessRegistration registration;
+                lock (_registrations)
+                    registration = _registrations.FirstOrDefault(e => e.IdSelector(id));
+                if (registration == null)
+                    throw new ApplicationException($"Registration for {id} is not found");
+                return registration.ProcessWrapper(new Process(id, _storage));
+            });
         }
 
-        public void SetEntryPoint(Func<string, bool> idSelector, Func<string, Task> entryPoint)
+        public void Register(ProcessRegistration registration)
         {
-            lock (_registerations)
-                _registerations.Add(new Registeration(entryPoint, idSelector));
+            lock (_registrations)
+                _registrations.Add(registration);
         }
 
         public async Task Run()
         {
             var tasks = (from id in await _storage.GetPendingProcessIds()
-                         from registeration in _registerations
+                         from registeration in _registrations
                          where registeration.IdSelector(id)
                          select registeration.EntryPoint(id)).ToArray();
             try
@@ -42,17 +50,6 @@ namespace Gaev.DurableTask
             {
                 // Ignore 
             }
-        }
-
-        private class Registeration
-        {
-            public Registeration(Func<string, Task> entryPoint, Func<string, bool> idSelector)
-            {
-                EntryPoint = entryPoint;
-                IdSelector = idSelector;
-            }
-            public Func<string, Task> EntryPoint { get; }
-            public Func<string, bool> IdSelector { get; }
         }
     }
 }

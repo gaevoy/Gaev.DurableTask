@@ -28,7 +28,7 @@ namespace Gaev.DurableTask.Tests.Examples
 
         public void RegisterProcess()
         {
-            _host.SetEntryPoint(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
+            _host.Register(id => id.StartsWith(nameof(DelayedJobHandler)), id => Run(default(TimeSpan), id));
         }
     }
 }
