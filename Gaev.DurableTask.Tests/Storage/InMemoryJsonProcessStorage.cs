@@ -19,16 +19,14 @@ namespace Gaev.DurableTask.Tests.Storage
         public async Task Set<T>(string processId, string operationId, OperationState<T> state)
         {
             await EmulateAsync();
+            _process[processId] = processId;
             _value[processId + operationId] = JsonConvert.SerializeObject(state, _jsonSettings);
         }
 
-        public void Set(string processId, ProcessState state)
+        public void CleanProcess(string processId)
         {
             string _;
-            if (state.IsCompleted)
-                _process.TryRemove(processId, out _);
-            else
-                _process[processId] = "";
+            _process.TryRemove(processId, out _);
         }
 
         public async Task<IEnumerable<string>> GetPendingProcessIds()
@@ -45,14 +43,6 @@ namespace Gaev.DurableTask.Tests.Storage
             if (_value.TryGetValue(processId + operationId, out value))
                 result = JsonConvert.DeserializeObject<OperationState<T>>(value, _jsonSettings);
             return result;
-        }
-
-        public ProcessState Get(string key)
-        {
-            string value;
-            if (_process.TryGetValue(key, out value))
-                return JsonConvert.DeserializeObject<ProcessState>(value, _jsonSettings);
-            return null;
         }
 
         private static Task EmulateAsync() => Task.Delay(5);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Gaev.DurableTask.Tests.Storage;
 using NUnit.Framework;
@@ -20,6 +21,7 @@ namespace Gaev.DurableTask.Tests
             var creditCard = "123";
             var creditCardFlow = new CreditCardFlow(host);
             creditCardFlow.RegisterProcess();
+            await host.Start();
             var processId = creditCardFlow.Start(companyId, creditCard);
             var process = (CreditCardFlow.MyProcess)host.Get(processId);
 
@@ -109,6 +111,7 @@ namespace Gaev.DurableTask.Tests
                     _underlying = underlying;
                 }
 
+                public CancellationToken Cancellation => _underlying.Cancellation;
                 public void Dispose() => _underlying.Dispose();
                 public Task<T> Do<T>(Func<Task<T>> act, string id) => _underlying.Do(act, id);
 

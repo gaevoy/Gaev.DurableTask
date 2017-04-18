@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gaev.DurableTask.ConsolePlayground
@@ -10,8 +11,14 @@ namespace Gaev.DurableTask.ConsolePlayground
         public CreditCardProcess(IProcess underlying)
         {
             _underlying = underlying;
+            _underlying.Cancellation.Register(() =>
+            {
+                _onTransactionAppeared.TrySetCanceled();
+                _onCreditCardDeleted.TrySetCanceled();
+            });
         }
 
+        public CancellationToken Cancellation => _underlying.Cancellation;
         public void Dispose() => _underlying.Dispose();
         public Task<T> Do<T>(Func<Task<T>> act, string id) => _underlying.Do(act, id);
 

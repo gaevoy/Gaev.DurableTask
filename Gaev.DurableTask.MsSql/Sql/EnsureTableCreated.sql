@@ -3,7 +3,7 @@ BEGIN
 	CREATE TABLE [dbo].[DurableTasks](
 		[Id] [int] IDENTITY(1,1) NOT NULL,
 		[ProcessId] [nvarchar](255) NOT NULL,
-		[OperationId] [nvarchar](255) NULL,
+		[OperationId] [nvarchar](255) NOT NULL,
 		[IsException] [bit] NOT NULL,
 		[State] [nvarchar](max) NOT NULL,
 	 CONSTRAINT [PK_DurableTasks] PRIMARY KEY CLUSTERED 

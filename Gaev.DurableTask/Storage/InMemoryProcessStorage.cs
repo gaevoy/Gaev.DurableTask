@@ -10,17 +10,15 @@ namespace Gaev.DurableTask.Storage
         private readonly ConcurrentDictionary<string, object> _process = new ConcurrentDictionary<string, object>();
         public Task Set<T>(string processId, string operationId, OperationState<T> state)
         {
+            _process[processId] = processId;
             _value[processId + operationId] = state;
             return Task.CompletedTask;
         }
 
-        public void Set(string processId, ProcessState state)
+        public void CleanProcess(string processId)
         {
             object _;
-            if (state.IsCompleted)
-                _process.TryRemove(processId, out _);
-            else
-                _process[processId] = state;
+            _process.TryRemove(processId, out _);
         }
 
         public Task<IEnumerable<string>> GetPendingProcessIds()
@@ -35,14 +33,6 @@ namespace Gaev.DurableTask.Storage
             if (_value.TryGetValue(processId + operationId, out value))
                 result = (OperationState<T>)value;
             return Task.FromResult(result);
-        }
-
-        public ProcessState Get(string key)
-        {
-            object value;
-            if (_process.TryGetValue(key, out value))
-                return (ProcessState)value;
-            return null;
         }
     }
 }

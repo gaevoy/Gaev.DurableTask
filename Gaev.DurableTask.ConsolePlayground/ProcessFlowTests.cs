@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable AccessToDisposedClosure
 #pragma warning disable 4014

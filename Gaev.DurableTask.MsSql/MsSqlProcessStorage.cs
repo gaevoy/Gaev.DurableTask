@@ -19,7 +19,6 @@ namespace Gaev.DurableTask.MsSql
         private static readonly string GetQuery = ReadEmbeddedFile(Ns + "Get.sql");
         private static readonly string GetPendingProcessIdsQuery = ReadEmbeddedFile(Ns + "GetPendingProcessIds.sql");
         private static readonly string DeleteProcessQuery = ReadEmbeddedFile(Ns + "DeleteProcess.sql");
-        private static readonly string ProcessStarted = "7F7FAFDA-9F22-4AF9-9882-FB6790AFAF58";
         private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
         {
             Converters = new List<JsonConverter> { new ProcessExceptionSerializer(), new VoidSerializer() }
@@ -44,28 +43,25 @@ namespace Gaev.DurableTask.MsSql
             using (var con = new SqlConnection(_connectionString))
             {
                 await con.OpenAsync();
-                var cmd = CreateSetCommand(con, processId, operationId, isException, stateJson);
+                var cmd = con.CreateCommand();
+                cmd.CommandText = SetQuery;
+                AddParameter(cmd, "ProcessId", processId);
+                AddParameter(cmd, "OperationId", operationId);
+                AddParameter(cmd, "IsException", isException);
+                AddParameter(cmd, "State", stateJson);
                 await cmd.ExecuteNonQueryAsync();
             }
         }
 
-        public void Set(string processId, ProcessState state)
+        public void CleanProcess(string processId)
         {
             using (var con = new SqlConnection(_connectionString))
             {
                 con.Open();
-                if (state.IsCompleted)
-                {
-                    var cmd = con.CreateCommand();
-                    AddParameter(cmd, "ProcessId", processId);
-                    cmd.CommandText = DeleteProcessQuery;
-                    cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    var cmd = CreateSetCommand(con, processId, ProcessStarted, false, string.Empty);
-                    cmd.ExecuteNonQuery();
-                }
+                var cmd = con.CreateCommand();
+                AddParameter(cmd, "ProcessId", processId);
+                cmd.CommandText = DeleteProcessQuery;
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -117,25 +113,6 @@ namespace Gaev.DurableTask.MsSql
             }
         }
 
-        public ProcessState Get(string processId)
-        {
-            using (var con = new SqlConnection(_connectionString))
-            {
-                con.Open();
-                SqlCommand cmd = con.CreateCommand();
-                cmd.CommandText = GetQuery;
-                AddParameter(cmd, "ProcessId", processId);
-                AddParameter(cmd, "OperationId", ProcessStarted);
-                var reader = cmd.ExecuteReader();
-                using (reader)
-                {
-                    while (reader.Read())
-                        return new ProcessState { IsCompleted = false };
-                    return null;
-                }
-            }
-        }
-
         private static string ReadEmbeddedFile(string fileName)
         {
             using (var stream = typeof(MsSqlProcessStorage).Assembly.GetManifestResourceStream(fileName))
@@ -143,17 +120,6 @@ namespace Gaev.DurableTask.MsSql
                 stream.Position = 0;
                 return new StreamReader(stream).ReadToEnd();
             }
-        }
-
-        private static SqlCommand CreateSetCommand(SqlConnection con, string processId, string operationId, bool isException, string stateJson)
-        {
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandText = SetQuery;
-            AddParameter(cmd, "ProcessId", processId);
-            AddParameter(cmd, "OperationId", operationId);
-            AddParameter(cmd, "IsException", isException);
-            AddParameter(cmd, "State", stateJson);
-            return cmd;
         }
 
         private static void AddParameter(SqlCommand cmd, string parameterName, object value)

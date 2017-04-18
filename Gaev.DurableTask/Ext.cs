@@ -21,7 +21,7 @@ namespace Gaev.DurableTask
                 var runAt = await process.Attach(DateTime.UtcNow + delay, id + ".Saved");
                 delay = runAt - DateTime.UtcNow;
                 if (delay > TimeSpan.Zero)
-                    await process.Do(() => Task.Delay(delay), id + ".Completed");
+                    await process.Do(() => Task.Delay(delay, process.Cancellation), id + ".Completed");
             }, id);
         }
 

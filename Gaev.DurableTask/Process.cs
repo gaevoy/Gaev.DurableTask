@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Gaev.DurableTask.Storage;
 
@@ -8,39 +9,24 @@ namespace Gaev.DurableTask
     {
         private readonly string _id;
         private readonly IProcessStorage _storage;
-        private bool _isCompleted;
-
         // TODO: Pass a CancellationToken, don't save OperationCancalledException
-        public Process(string id, IProcessStorage storage)
+        private bool _isDisposed;
+        public CancellationToken Cancellation { get; }
+
+        public Process(string id, IProcessStorage storage, CancellationToken cancellation)
         {
             _id = id;
             _storage = storage;
-            Start(); // Start on demand only when 1st Do requested
-        }
-
-        private void Start()
-        {
-            var state = _storage.Get(_id);
-            if (state == null)
-            {
-                state = new ProcessState();
-                _storage.Set(_id, state);
-            }
-            _isCompleted = state.IsCompleted;
-        }
-
-        private void Complete()
-        {
-            if (!_isCompleted)
-            {
-                _isCompleted = true;
-                _storage.Set(_id, new ProcessState { IsCompleted = true });
-            }
+            Cancellation = cancellation;
         }
 
         public void Dispose()
         {
-            Complete();
+            if (!_isDisposed && !Cancellation.IsCancellationRequested)
+            {
+                _isDisposed = true;
+                _storage.CleanProcess(_id);
+            }
         }
 
         public async Task<T> Do<T>(Func<Task<T>> act, string id)
@@ -52,6 +38,10 @@ namespace Gaev.DurableTask
                 try
                 {
                     result.Value = await act();
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception e)
                 {
