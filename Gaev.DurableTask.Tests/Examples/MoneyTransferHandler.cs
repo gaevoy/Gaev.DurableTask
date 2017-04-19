@@ -36,7 +36,7 @@ namespace Gaev.DurableTask.Tests.Examples
         {
             using (var process = _host.Spawn(id))
             {
-                var state = await process.Attach(input, "StateSaved");
+                var state = await process.Get(input, "StateSaved");
                 string fromTranId = null;
                 string toTranId = null;
                 try

@@ -27,8 +27,8 @@ namespace Gaev.DurableTask.ConsolePlayground
         {
             using (var process = _host.Spawn(processId).As<CreditCardProcess>())
             {
-                companyId = await process.Attach(companyId, "1");
-                creditCard = await process.Attach(creditCard, "2");
+                companyId = await process.Get(companyId, "1");
+                creditCard = await process.Get(creditCard, "2");
                 Console.WriteLine($"CreditCardFlow is up for companyId={companyId} creditCard={creditCard}");
                 var email = await process.Do(() => GetEmail(companyId), "3");
                 await process.Do(() => SendEmail(email, $"{creditCard} was assigned to you"), "4");

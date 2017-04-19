@@ -41,18 +41,21 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DelayResult.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="IProcessHost.cs" />
+    <Compile Include="ProcessHostExtensions.cs" />
     <Compile Include="ProcessHost.cs" />
     <Compile Include="ProcessException.cs" />
     <Compile Include="ProcessRegistration.cs" />
+    <Compile Include="ProcessWrapper.cs" />
     <Compile Include="Storage\InMemoryProcessStorage.cs" />
     <Compile Include="Storage\IProcessStorage.cs" />
     <Compile Include="Process.cs" />
     <Compile Include="Storage\OperationState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Void.cs" />
-    <Compile Include="Ext.cs" />
+    <Compile Include="ProcessExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

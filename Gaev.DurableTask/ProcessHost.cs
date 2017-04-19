@@ -31,7 +31,7 @@ namespace Gaev.DurableTask
                     registration = _registrations.FirstOrDefault(e => e.IdSelector(id));
                 if (registration == null)
                     throw new ApplicationException($"Registration for {id} is not found");
-                return registration.ProcessWrapper(new Process(id, _storage, _cancellation.Token));
+                return registration.ProcessWrapper(new Process(id, _storage, _cancellation.Token, Remove));
             });
         }
 
@@ -71,6 +71,12 @@ namespace Gaev.DurableTask
             {
                 // Ignore
             }
+        }
+
+        private void Remove(string processId)
+        {
+            IProcess _;
+            _process.TryRemove(processId, out _);
         }
     }
 }

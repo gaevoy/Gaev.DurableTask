@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CreditCardProcess.cs" />
-    <Compile Include="ProcessFlowTests.cs" />
+    <Compile Include="CreditCardFlow.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

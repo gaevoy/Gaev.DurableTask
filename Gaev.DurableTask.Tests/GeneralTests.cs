@@ -121,7 +121,7 @@ namespace Gaev.DurableTask.Tests
         {
             using (var process = host.Spawn(id))
             {
-                input = await process.Attach(input, "1");
+                input = await process.Get(input, "1");
                 await callback(input);
             }
         }

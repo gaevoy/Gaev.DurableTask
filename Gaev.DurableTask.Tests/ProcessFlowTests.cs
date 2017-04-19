@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Gaev.DurableTask.Tests.Storage;
 using NUnit.Framework;
@@ -53,8 +52,8 @@ namespace Gaev.DurableTask.Tests
             {
                 using (var process = _host.Spawn(processId).As<MyProcess>())
                 {
-                    companyId = await process.Attach(companyId, "1");
-                    creditCard = await process.Attach(creditCard, "2");
+                    companyId = await process.Get(companyId, "1");
+                    creditCard = await process.Get(creditCard, "2");
                     var email = await process.Do(() => GetEmail(companyId), "3");
                     await process.Do(() => SendEmail(email, $"{creditCard} was assigned to you"), "4");
                     var onCheckTime = process.Delay(TimeSpan.FromSeconds(5), "5");
@@ -102,18 +101,11 @@ namespace Gaev.DurableTask.Tests
 
             private static Task EmulateAsync() => Task.Delay(5);
 
-            public class MyProcess : IProcess
+            public class MyProcess : ProcessWrapper
             {
-                private readonly IProcess _underlying;
-
-                public MyProcess(IProcess underlying)
+                public MyProcess(IProcess underlying) : base(underlying)
                 {
-                    _underlying = underlying;
                 }
-
-                public CancellationToken Cancellation => _underlying.Cancellation;
-                public void Dispose() => _underlying.Dispose();
-                public Task<T> Do<T>(Func<Task<T>> act, string id) => _underlying.Do(act, id);
 
                 private readonly TaskCompletionSource<object> _onTransactionAppeared = new TaskCompletionSource<object>();
                 public void RaiseOnTransactionAppeared() => _onTransactionAppeared.TrySetResult(null);

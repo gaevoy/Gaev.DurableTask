@@ -1,27 +1,18 @@
-using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gaev.DurableTask.ConsolePlayground
 {
-    public class CreditCardProcess : IProcess
+    public class CreditCardProcess : ProcessWrapper
     {
-        private readonly IProcess _underlying;
-
-        public CreditCardProcess(IProcess underlying)
+        public CreditCardProcess(IProcess underlying) : base(underlying)
         {
-            _underlying = underlying;
-            _underlying.Cancellation.Register(() =>
+            Underlying.Cancellation.Register(() =>
             {
                 _onTransactionAppeared.TrySetCanceled();
                 _onCreditCardDeleted.TrySetCanceled();
             });
         }
-
-        public CancellationToken Cancellation => _underlying.Cancellation;
-        public void Dispose() => _underlying.Dispose();
-        public Task<T> Do<T>(Func<Task<T>> act, string id) => _underlying.Do(act, id);
-
+        
         private readonly TaskCompletionSource<object> _onTransactionAppeared = new TaskCompletionSource<object>();
         public void RaiseOnTransactionAppeared() => _onTransactionAppeared.TrySetResult(null);
         public Task OnTransactionAppeared() => _onTransactionAppeared.Task;

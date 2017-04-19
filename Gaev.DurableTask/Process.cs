@@ -9,29 +9,29 @@ namespace Gaev.DurableTask
     {
         private readonly string _id;
         private readonly IProcessStorage _storage;
-        // TODO: Pass a CancellationToken, don't save OperationCancalledException
-        private bool _isDisposed;
+        private readonly Action<string> _onDisposed;
         public CancellationToken Cancellation { get; }
 
-        public Process(string id, IProcessStorage storage, CancellationToken cancellation)
+        public Process(string id, IProcessStorage storage, CancellationToken cancellation, Action<string> onDisposed)
         {
             _id = id;
             _storage = storage;
+            _onDisposed = onDisposed;
             Cancellation = cancellation;
         }
 
         public void Dispose()
         {
-            if (!_isDisposed && !Cancellation.IsCancellationRequested)
+            if (!Cancellation.IsCancellationRequested)
             {
-                _isDisposed = true;
                 _storage.CleanProcess(_id);
+                _onDisposed(_id);
             }
         }
 
-        public async Task<T> Do<T>(Func<Task<T>> act, string id)
+        public async Task<T> Do<T>(Func<Task<T>> act, string id, bool redo = false)
         {
-            OperationState<T> result = await _storage.Get<T>(_id, id);
+            OperationState<T> result = redo ? null : await _storage.Get<T>(_id, id);
             if (result == null)
             {
                 result = new OperationState<T>();
