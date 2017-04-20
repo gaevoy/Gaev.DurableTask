@@ -10,11 +10,13 @@ namespace Gaev.DurableTask.ConsolePlayground
         static void Main(string[] args)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["Sql"].ConnectionString;
-            using (var host = new ProcessHost(new MsSqlProcessStorage(connectionString)))
+            using (var host = new ProcessHost(new MsSqlProcessStorageWithCache(connectionString)))
             {
                 var creditCardFlow = new CreditCardFlow(host);
                 creditCardFlow.RegisterProcess();
                 host.Start();
+                // 16KB in 64bit, 5KB in 32bit each instance
+
                 Console.WriteLine(@"Type following commands:
  exit - To stop host and exit
  add {creditCard} {companyId} - To add a credit card for a company
@@ -25,6 +27,7 @@ namespace Gaev.DurableTask.ConsolePlayground
                     var command = (Console.ReadLine() ?? "").Split(' ');
                     if (command[0] == "exit")
                     {
+                        Console.WriteLine("exiting...");
                         SqlConnection.ClearAllPools(); // to speed up exit
                         return;
                     }
