@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gaev.DurableTask.Storage
@@ -19,6 +20,9 @@ namespace Gaev.DurableTask.Storage
         {
             object _;
             _process.TryRemove(processId, out _);
+            var keys = _value.Keys.Where(e => e.StartsWith(processId)).ToList();
+            foreach (var key in keys)
+                _value.TryRemove(key, out _);
         }
 
         public Task<IEnumerable<string>> GetPendingProcessIds()

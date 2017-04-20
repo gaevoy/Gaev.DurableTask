@@ -7,7 +7,8 @@ namespace Gaev.DurableTask
         IProcess Spawn(string id);
         IProcess Get(string id);
         void Register(ProcessRegistration registration);
-        // TODO: Pass a CancellationToken, use the CancellationToken to every process
         Task Start();
+        void Watch(Task longRunningTask);
+        // TODO: Consider to add Host(string processId, Func<Task> entryPoint) method and remove Spawn because it will be executed inside Host method
     }
 }

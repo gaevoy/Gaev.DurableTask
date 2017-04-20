@@ -21,7 +21,7 @@ namespace Gaev.DurableTask.Tests.Examples
             _accounts = accounts;
         }
 
-        public Task StartTransfer(string fromAccountId, string toAccountId, decimal amount)
+        public string StartTransfer(string fromAccountId, string toAccountId, decimal amount)
         {
             var input = new State
             {
@@ -29,7 +29,9 @@ namespace Gaev.DurableTask.Tests.Examples
                 ToAccountId = toAccountId,
                 Amount = amount
             };
-            return Transfer(input, nameof(MoneyTransferHandler) + Guid.NewGuid());
+            var id = nameof(MoneyTransferHandler) + Guid.NewGuid();
+            _host.Watch(Transfer(input, id));
+            return id;
         }
 
         private async Task Transfer(State input, string id)

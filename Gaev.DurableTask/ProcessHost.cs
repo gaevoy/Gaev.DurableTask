@@ -15,6 +15,7 @@ namespace Gaev.DurableTask
         private readonly ConcurrentDictionary<string, IProcess> _process = new ConcurrentDictionary<string, IProcess>();
         private CancellationTokenSource _cancellation;
         private Task _running;
+        private readonly object _syncLock = new object();
 
         public ProcessHost(IProcessStorage storage)
         {
@@ -58,6 +59,13 @@ namespace Gaev.DurableTask
                          where registeration.IdSelector(id)
                          select registeration.EntryPoint(id)).ToArray();
             _running = Task.WhenAll(tasks);
+        }
+
+        public void Watch(Task longRunningTask)
+        {
+            if (_cancellation == null) throw new ApplicationException("You can not host after process host start");
+            lock (_syncLock)
+                _running = Task.WhenAll(longRunningTask, _running);
         }
 
         public void Dispose()

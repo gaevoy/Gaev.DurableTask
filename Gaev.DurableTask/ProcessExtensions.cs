@@ -16,11 +16,12 @@ namespace Gaev.DurableTask
 
         public static Task<DelayResult> Delay(this IProcess process, TimeSpan delay, string id)
         {
+            var desired = DateTime.UtcNow + delay;
             return process.Do(async () =>
             {
                 var result = new DelayResult
                 {
-                    Desired = await process.Get(DateTime.UtcNow + delay, id + ".Saved")
+                    Desired = await process.Get(desired, id + ".Saved")
                 };
                 delay = result.Desired - DateTime.UtcNow;
                 if (delay > TimeSpan.Zero)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gaev.DurableTask.Json;
 using Gaev.DurableTask.Storage;
@@ -27,6 +28,9 @@ namespace Gaev.DurableTask.Tests.Storage
         {
             string _;
             _process.TryRemove(processId, out _);
+            var keys = _value.Keys.Where(e => e.StartsWith(processId)).ToList();
+            foreach (var key in keys)
+                _value.TryRemove(key, out _);
         }
 
         public async Task<IEnumerable<string>> GetPendingProcessIds()
@@ -45,6 +49,6 @@ namespace Gaev.DurableTask.Tests.Storage
             return result;
         }
 
-        private static Task EmulateAsync() => Task.Delay(5);
+        private static Task EmulateAsync() => Task.Delay(1);
     }
 }

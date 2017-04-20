@@ -16,10 +16,10 @@ namespace Gaev.DurableTask.ConsolePlayground
             _host = host;
         }
 
-        public string Start(string companyId, string creditCard)
+        public string Start(string creditCard, string companyId)
         {
             var processId = nameof(CreditCardFlow) + creditCard;
-            var _ = Run(processId, companyId, creditCard);
+            _host.Watch(Run(processId, companyId, creditCard));
             return processId;
         }
 
@@ -65,7 +65,7 @@ namespace Gaev.DurableTask.ConsolePlayground
         private async Task<string> GetEmail(string companyId)
         {
             await EmulateAsync();
-            return "companyId@test.com";
+            return companyId + "@test.com";
         }
 
         private async Task SendEmail(string email, string text)
