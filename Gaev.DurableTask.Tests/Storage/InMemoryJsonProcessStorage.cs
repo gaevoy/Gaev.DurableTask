@@ -33,10 +33,9 @@ namespace Gaev.DurableTask.Tests.Storage
                 _value.TryRemove(key, out _);
         }
 
-        public async Task<IEnumerable<string>> GetPendingProcessIds()
+        public IEnumerable<string> GetPendingProcessIds()
         {
-            await EmulateAsync();
-            return _process.Keys;
+            return _process.Keys.ToList();
         }
 
         public async Task<OperationState<T>> Get<T>(string processId, string operationId)

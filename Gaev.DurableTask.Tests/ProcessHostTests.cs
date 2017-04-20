@@ -12,7 +12,7 @@ namespace Gaev.DurableTask.Tests
         {
             // Given
             var host = NewProcessHost().WithoutRegistration();
-            await host.Start();
+            host.Start();
             var processId = Guid.NewGuid().ToString();
 
             // When
@@ -25,7 +25,7 @@ namespace Gaev.DurableTask.Tests
         }
 
         [Test]
-        public async Task It_should_spawn_wrapper_of_process()
+        public void It_should_spawn_wrapper_of_process()
         {
             // Given
             var host = NewProcessHost();
@@ -35,7 +35,7 @@ namespace Gaev.DurableTask.Tests
                 EntryPoint = id => Task.CompletedTask,
                 ProcessWrapper = p => new TestProcess(p)
             });
-            await host.Start();
+            host.Start();
 
             // When
             var proc = host.Spawn("1");
@@ -46,11 +46,11 @@ namespace Gaev.DurableTask.Tests
         }
 
         [Test]
-        public async Task It_should_remove_disposed_process()
+        public void It_should_remove_disposed_process()
         {
             // Given
             var host = NewProcessHost().WithoutRegistration();
-            await host.Start();
+            host.Start();
             var processId = Guid.NewGuid().ToString();
             var proc = host.Spawn(processId);
 
@@ -69,7 +69,7 @@ namespace Gaev.DurableTask.Tests
             var storage = new InMemoryJsonProcessStorage();
             var processId = Guid.NewGuid().ToString();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             await host.Spawn(processId).Set(123, "op1");
 
             // When
@@ -88,7 +88,7 @@ namespace Gaev.DurableTask.Tests
                     onDone.SetResult(0);
                 }
             });
-            await host.Start();
+            host.Start();
 
             // Then
             Assert.IsTrue(isStarted);
@@ -103,7 +103,7 @@ namespace Gaev.DurableTask.Tests
             var storage = new InMemoryJsonProcessStorage();
             var processId = Guid.NewGuid().ToString();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             var proc = host.Spawn(processId);
             await proc.Set(123, "op1");
             proc.Dispose();
@@ -121,7 +121,7 @@ namespace Gaev.DurableTask.Tests
                     await Task.Delay(100);
                 }
             });
-            await host.Start();
+            host.Start();
 
             // Then
             Assert.IsFalse(isStarted);
@@ -134,7 +134,7 @@ namespace Gaev.DurableTask.Tests
             var storage = new InMemoryJsonProcessStorage();
             var processId = Guid.NewGuid().ToString();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             await host.Spawn(processId).Set(123, "op1");
             var onDone = new TaskCompletionSource<int>();
             host = new ProcessHost(storage);
@@ -154,7 +154,7 @@ namespace Gaev.DurableTask.Tests
                     }
                 }
             });
-            await host.Start();
+            host.Start();
 
             // When
             host.Dispose();
@@ -164,11 +164,11 @@ namespace Gaev.DurableTask.Tests
         }
 
         [Test]
-        public async Task It_should_cancel_new_processes_if_disposed()
+        public void It_should_cancel_new_processes_if_disposed()
         {
             // Given
             var host = NewProcessHost().WithoutRegistration();
-            await host.Start();
+            host.Start();
             var onDone = new TaskCompletionSource<int>();
             host.Watch(new Func<Task>(async () =>
             {

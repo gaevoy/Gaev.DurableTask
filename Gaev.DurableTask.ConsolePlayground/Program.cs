@@ -14,7 +14,7 @@ namespace Gaev.DurableTask.ConsolePlayground
             {
                 var creditCardFlow = new CreditCardFlow(host);
                 creditCardFlow.RegisterProcess();
-                host.Start().Wait();
+                host.Start();
                 Console.WriteLine(@"Type following commands:
  exit - To stop host and exit
  add {creditCard} {companyId} - To add a credit card for a company

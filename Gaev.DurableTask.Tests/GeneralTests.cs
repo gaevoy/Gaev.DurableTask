@@ -15,7 +15,7 @@ namespace Gaev.DurableTask.Tests
         {
             // Given
             var host = new ProcessHost(new InMemoryJsonProcessStorage()).WithoutRegistration();
-            await host.Start();
+            host.Start();
             var duration = Stopwatch.StartNew();
             var now = DateTime.UtcNow;
             var delay = TimeSpan.FromMilliseconds(300);
@@ -35,7 +35,7 @@ namespace Gaev.DurableTask.Tests
             // Given
             var storage = new InMemoryJsonProcessStorage();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             var processId = Guid.NewGuid().ToString();
             var actualInput = Guid.NewGuid().ToString();
 
@@ -54,7 +54,7 @@ namespace Gaev.DurableTask.Tests
                 onRestored.SetResult(input);
                 return Task.CompletedTask;
             }, id));
-            await host.Start();
+            host.Start();
             var expectedInput = await onRestored.Task;
 
             // Then
@@ -67,7 +67,7 @@ namespace Gaev.DurableTask.Tests
             // Given
             var storage = new InMemoryJsonProcessStorage();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             var processId = Guid.NewGuid().ToString();
 
             // When
@@ -85,7 +85,7 @@ namespace Gaev.DurableTask.Tests
                 onRestored.SetResult(exception);
                 return Task.CompletedTask;
             }, id));
-            await host.Start();
+            host.Start();
             await onRestored.Task;
 
             // Then
@@ -99,7 +99,7 @@ namespace Gaev.DurableTask.Tests
             // Given
             var storage = new InMemoryJsonProcessStorage();
             var host = new ProcessHost(storage).WithoutRegistration();
-            await host.Start();
+            host.Start();
             var processId = Guid.NewGuid().ToString();
 
             // When
@@ -110,7 +110,7 @@ namespace Gaev.DurableTask.Tests
             {
                 isRestored = true;
             }, id));
-            await host.Start();
+            host.Start();
             await Task.Delay(1000);
 
             // Then

@@ -50,11 +50,11 @@ namespace Gaev.DurableTask
                 _registrations.Add(registration);
         }
 
-        public async Task Start()
+        public void Start()
         {
             if (_cancellation != null) throw new ApplicationException("Process host already has been started");
             _cancellation = new CancellationTokenSource();
-            var tasks = (from id in await _storage.GetPendingProcessIds()
+            var tasks = (from id in _storage.GetPendingProcessIds().AsParallel()
                          from registeration in _registrations
                          where registeration.IdSelector(id)
                          select registeration.EntryPoint(id)).ToArray();

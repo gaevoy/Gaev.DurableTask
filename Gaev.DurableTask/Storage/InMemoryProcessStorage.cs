@@ -25,9 +25,9 @@ namespace Gaev.DurableTask.Storage
                 _value.TryRemove(key, out _);
         }
 
-        public Task<IEnumerable<string>> GetPendingProcessIds()
+        public IEnumerable<string> GetPendingProcessIds()
         {
-            return Task.FromResult<IEnumerable<string>>(_process.Keys);
+            return _process.Keys.ToList();
         }
 
         public Task<OperationState<T>> Get<T>(string processId, string operationId)

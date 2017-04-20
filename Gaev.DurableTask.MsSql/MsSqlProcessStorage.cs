@@ -65,14 +65,14 @@ namespace Gaev.DurableTask.MsSql
             }
         }
 
-        public async Task<IEnumerable<string>> GetPendingProcessIds()
+        public IEnumerable<string> GetPendingProcessIds()
         {
             using (var con = new SqlConnection(_connectionString))
             {
-                await con.OpenAsync();
+                con.Open();
                 SqlCommand cmd = con.CreateCommand();
                 cmd.CommandText = GetPendingProcessIdsQuery;
-                var reader = await cmd.ExecuteReaderAsync();
+                var reader = cmd.ExecuteReader();
                 var processIds = new List<string>();
                 using (reader)
                     while (reader.Read())
