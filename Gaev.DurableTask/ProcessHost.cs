@@ -51,7 +51,7 @@ namespace Gaev.DurableTask
                 _registrations.Add(registration);
         }
 
-        public void Start()
+        public void Resume()
         {
             if (_cancellation != null) throw new ApplicationException("Process host already has been started");
             _cancellation = new CancellationTokenSource();

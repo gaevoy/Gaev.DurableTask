@@ -14,8 +14,8 @@ namespace Gaev.DurableTask.ConsolePlayground
             {
                 var creditCardFlow = new CreditCardFlow(host);
                 creditCardFlow.RegisterProcess();
-                host.Start();
-                // 16KB in 64bit, 5KB in 32bit each instance
+                host.Resume();
+                // 9KB in 64bit, 4.3Kb in 32bit each instance
 
                 Console.WriteLine(@"Type following commands:
  exit - To stop host and exit
