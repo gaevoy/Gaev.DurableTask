@@ -28,11 +28,17 @@ public class UserRegistrationSaga
     {
         using (var proc = _host.Spawn(id))
         {
+            // Save email not to lose it if durable task resumes
             email = await proc.Get(email, "SaveEmail");
+            // Register the user
             var userId = await proc.Do(() => _service.RegisterUser(email), "RegisterUser");
+            // Generate a secret for email verification
             var secret = await proc.Get(Guid.NewGuid(), "secret");
+            // Send email to the user with the secret to verify
             await proc.Do(() => _service.VerifyEmail(email, secret), "VerifyEmail");
+            // Wait when user receive verification email and send the secret here, it can take couple of days
             await proc.Do(() => _service.WaitForEmailVerification(secret), "WaitForEmailVerification");
+            // Activate the user in the system
             await proc.Do(() => _service.ActivateUser(userId), "ActivateUser");
         }
     }
