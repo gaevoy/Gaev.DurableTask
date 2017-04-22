@@ -19,46 +19,46 @@ namespace Gaev.DurableTask.ConsolePlayground
         public string Start(string creditCard, string companyId)
         {
             var processId = nameof(CreditCardFlow) + creditCard;
-            _host.Watch(Run(processId, companyId, creditCard));
+            _host.Watch(DurableTask(processId, companyId, creditCard));
             return processId;
         }
 
-        private async Task Run(string processId, string companyId = null, string creditCard = null)
+        private async Task DurableTask(string processId, string companyId = null, string creditCard = null)
         {
-            using (var process = _host.Spawn(processId).As<CreditCardProcess>())
+            using (var proc = _host.Spawn(processId).As<CreditCardProcess>())
             {
-                companyId = await process.Get(companyId, "1");
-                creditCard = await process.Get(creditCard, "2");
+                companyId = await proc.Get(companyId, "1");
+                creditCard = await proc.Get(creditCard, "2");
                 Console.WriteLine($"CreditCardFlow is up for companyId={companyId} creditCard={creditCard}");
-                var email = await process.Do(() => GetEmail(companyId), "3");
-                await process.Do(() => SendEmail(email, $"{creditCard} was assigned to you"), "4");
-                var onCheckTime = process.Delay(TimeSpan.FromMinutes(5), "5");
-                var onFirstTransaction = process.Do(() => process.OnTransactionAppeared(), "6");
-                var onDeleted = process.Do(() => process.OnCreditCardDeleted(), "7");
+                var email = await proc.Do(() => GetEmail(companyId), "3");
+                await proc.Do(() => SendEmail(email, $"{creditCard} was assigned to you"), "4");
+                var onCheckTime = proc.Delay(TimeSpan.FromMinutes(5), "5");
+                var onFirstTransaction = proc.Do(() => proc.OnTransactionAppeared(), "6");
+                var onDeleted = proc.Do(() => proc.OnCreditCardDeleted(), "7");
                 Task.Run(async () =>
                 {
                     await onCheckTime;
                     if (onDeleted.IsCompleted) return;
                     if (!onFirstTransaction.IsCompleted)
-                        await process.Do(() => SendEmail(email, $"{creditCard} is inactive long time"), "8");
+                        await proc.Do(() => SendEmail(email, $"{creditCard} is inactive long time"), "8");
                 });
                 Task.Run(async () =>
                 {
                     await onFirstTransaction;
                     if (onDeleted.IsCompleted) return;
-                    await process.Do(() => SendEmail(email, $"{creditCard} received 1st transaction"), "9");
+                    await proc.Do(() => SendEmail(email, $"{creditCard} received 1st transaction"), "9");
                 });
 
                 await onDeleted;
                 // Cancel all pending tasks
-                await process.Do(() => SendEmail(email, $"{creditCard} was deleted"), "10");
+                await proc.Do(() => SendEmail(email, $"{creditCard} was deleted"), "10");
             }
         }
 
         public void RegisterProcess() => _host.Register(new ProcessRegistration
         {
             IdSelector = id => id.StartsWith(nameof(CreditCardFlow)),
-            EntryPoint = id => Run(id),
+            EntryPoint = id => DurableTask(id),
             ProcessWrapper = p => new CreditCardProcess(p)
         });
 

@@ -44,12 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Examples\Schedule.cs" />
+    <Compile Include="Examples\MoneyTransferSaga.cs" />
     <Compile Include="Examples\UserRegistrationSaga.cs" />
     <Compile Include="ProcessExtensionsTests.cs" />
     <Compile Include="GeneralTests.cs" />
     <Compile Include="Examples\DelayedJobHandler.cs" />
-    <Compile Include="Examples\IAccountBusinessLogic.cs" />
-    <Compile Include="Examples\MoneyTransferHandler.cs" />
     <Compile Include="ProcessHostTests.cs" />
     <Compile Include="ProcessTests.cs" />
     <Compile Include="Storage\InMemoryJsonProcessStorage.cs" />
