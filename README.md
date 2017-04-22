@@ -110,7 +110,6 @@ async Task DurableTask(string processId, string companyId = null, string creditC
 		});
 
 		await onDeleted;
-		// Cancel all pending tasks
 		await proc.Do(() => SendEmail(email, $"{creditCard} was deleted"), "10");
 	}
 }
