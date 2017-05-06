@@ -6,6 +6,8 @@ A durable task must have some storage for storing current state in order to resu
 
 To estimate amount of used memory, a simple durable task was hosted in console application. As a result one instance of the durable task will use 4.3Kb in 32bit or 9KB in 64bit, so 250 000 instances will occupy 1Gb of 32bit console app.
 
+**Caveat:** An exception type is limited due to serialization/deserialization. *ProcessException* is only one type allowed to throw/catch.
+
 Let's look closer to the durable task. It is easier to show an example:
 
 **Saga, process manager** [complete example](https://github.com/gaevoy/Gaev.DurableTask/blob/master/Gaev.DurableTask.Tests/Examples/UserRegistrationSaga.cs)
