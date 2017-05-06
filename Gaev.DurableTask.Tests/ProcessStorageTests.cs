@@ -166,6 +166,7 @@ namespace Gaev.DurableTask.Tests
             var actual2 = await storage.Get<string>(processId2, "_");
             Assert.IsNull(actual1);
             Assert.IsNotNull(actual2);
+            CollectionAssert.AreEquivalent(new [] { processId2 }, storage.GetPendingProcessIds());
         }
 
         private class TestType1
