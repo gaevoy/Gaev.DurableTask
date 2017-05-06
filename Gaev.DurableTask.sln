@@ -7,9 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask", "Gaev.Du
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.Tests", "Gaev.DurableTask.Tests\Gaev.DurableTask.Tests.csproj", "{C36A3907-B1CF-4B4B-AC46-0153AC83D605}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.Json", "Gaev.DurableTask.Json\Gaev.DurableTask.Json.csproj", "{C0E2EE39-4950-468A-9FE4-936F38324BC2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.MsSql", "Gaev.DurableTask.MsSql\Gaev.DurableTask.MsSql.csproj", "{63F1F58B-BF98-4FFB-9AE1-F2077535773B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.Storage", "Gaev.DurableTask.Storage\Gaev.DurableTask.Storage.csproj", "{C0E2EE39-4950-468A-9FE4-936F38324BC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaev.DurableTask.ConsolePlayground", "Gaev.DurableTask.ConsolePlayground\Gaev.DurableTask.ConsolePlayground.csproj", "{9D40F717-75E8-4FDE-9AD7-475CC436EEB7}"
 EndProject
@@ -31,10 +29,6 @@ Global
 		{C0E2EE39-4950-468A-9FE4-936F38324BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0E2EE39-4950-468A-9FE4-936F38324BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0E2EE39-4950-468A-9FE4-936F38324BC2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63F1F58B-BF98-4FFB-9AE1-F2077535773B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63F1F58B-BF98-4FFB-9AE1-F2077535773B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63F1F58B-BF98-4FFB-9AE1-F2077535773B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63F1F58B-BF98-4FFB-9AE1-F2077535773B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9D40F717-75E8-4FDE-9AD7-475CC436EEB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9D40F717-75E8-4FDE-9AD7-475CC436EEB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D40F717-75E8-4FDE-9AD7-475CC436EEB7}.Release|Any CPU.ActiveCfg = Release|Any CPU

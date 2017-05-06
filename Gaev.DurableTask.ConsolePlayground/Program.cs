@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Data.SqlClient;
-using Gaev.DurableTask.MsSql;
+using Gaev.DurableTask.Storage;
 
 namespace Gaev.DurableTask.ConsolePlayground
 {

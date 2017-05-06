@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Gaev.DurableTask.Json
+namespace Gaev.DurableTask.Storage
 {
     public class VoidSerializer : JsonConverter
     {

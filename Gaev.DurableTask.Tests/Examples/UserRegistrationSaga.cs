@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Gaev.DurableTask;
-using Gaev.DurableTask.MsSql;
+using Gaev.DurableTask.Storage;
 
 public class UserRegistrationSaga
 {

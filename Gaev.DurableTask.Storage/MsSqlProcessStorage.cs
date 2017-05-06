@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
-using Gaev.DurableTask.Json;
-using Gaev.DurableTask.Storage;
 using Newtonsoft.Json;
 
-namespace Gaev.DurableTask.MsSql
+namespace Gaev.DurableTask.Storage
 {
-    public class MsSqlProcessStorageWithCache : IProcessStorage
+    public class MsSqlProcessStorage : IProcessStorage
     {
         private readonly string _connectionString;
-        private static readonly string Ns = "Gaev.DurableTask.MsSql.Sql.";
+        private static readonly string Ns = "Gaev.DurableTask.Storage.Sql.";
         private static readonly string EnsureTableCreatedQuery = ReadEmbeddedFile(Ns + "EnsureTableCreated.sql");
         private static readonly string SetQuery = ReadEmbeddedFile(Ns + "Set.sql");
         private static readonly string GetQuery = ReadEmbeddedFile(Ns + "Get.sql");
@@ -25,14 +22,7 @@ namespace Gaev.DurableTask.MsSql
             Converters = new List<JsonConverter> { new ProcessExceptionSerializer(), new VoidSerializer() }
         };
 
-        private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, OperationState>> _cache = new ConcurrentDictionary<string, ConcurrentDictionary<string, OperationState>>();
-        public class OperationState
-        {
-            public bool IsException { get; set; }
-            public string State { get; set; }
-        }
-
-        public MsSqlProcessStorageWithCache(string connectionString)
+        public MsSqlProcessStorage(string connectionString)
         {
             _connectionString = connectionString;
             using (var con = new SqlConnection(_connectionString))
@@ -46,9 +36,8 @@ namespace Gaev.DurableTask.MsSql
 
         public async Task Set<T>(string processId, string operationId, OperationState<T> state)
         {
-            var op = _cache.GetOrAdd(processId, _ => GetOperations(processId)).GetOrAdd(operationId, new OperationState());
-            op.IsException = state.Exception != null;
-            op.State = JsonConvert.SerializeObject(op.IsException ? (object)state.Exception : state.Value, _jsonSettings);
+            var isException = state.Exception != null;
+            var stateJson = JsonConvert.SerializeObject(isException ? (object)state.Exception : state.Value, _jsonSettings);
             using (var con = new SqlConnection(_connectionString))
             {
                 await con.OpenAsync();
@@ -56,8 +45,8 @@ namespace Gaev.DurableTask.MsSql
                 cmd.CommandText = SetQuery;
                 AddParameter(cmd, "ProcessId", processId);
                 AddParameter(cmd, "OperationId", operationId);
-                AddParameter(cmd, "IsException", op.IsException);
-                AddParameter(cmd, "State", op.State);
+                AddParameter(cmd, "IsException", isException);
+                AddParameter(cmd, "State", stateJson);
                 await cmd.ExecuteNonQueryAsync();
             }
         }
@@ -90,51 +79,34 @@ namespace Gaev.DurableTask.MsSql
             }
         }
 
-        public Task<OperationState<T>> Get<T>(string processId, string operationId)
-        {
-            OperationState op;
-            OperationState<T> result = null;
-            if (_cache.GetOrAdd(processId, _ => GetOperations(processId)).TryGetValue(operationId, out op))
-            {
-                if (op.IsException)
-                    result = new OperationState<T>
-                    {
-                        Exception = JsonConvert.DeserializeObject<ProcessException>(op.State, _jsonSettings)
-                    };
-                else
-                    result = new OperationState<T>
-                    {
-                        Value = JsonConvert.DeserializeObject<T>(op.State, _jsonSettings)
-                    };
-            }
-            return Task.FromResult(result);
-        }
-
-        public ConcurrentDictionary<string, OperationState> GetOperations(string processId)
+        public async Task<OperationState<T>> Get<T>(string processId, string operationId)
         {
             using (var con = new SqlConnection(_connectionString))
             {
-                con.Open();
+                await con.OpenAsync();
                 SqlCommand cmd = con.CreateCommand();
-                cmd.CommandText = @"
-SELECT IsException, [State], OperationId
-FROM DurableTasks
-WHERE ProcessId = @ProcessId";
+                cmd.CommandText = GetQuery;
                 AddParameter(cmd, "ProcessId", processId);
-                var reader = cmd.ExecuteReader();
+                AddParameter(cmd, "OperationId", operationId);
+                var reader = await cmd.ExecuteReaderAsync();
                 using (reader)
                 {
-                    var result = new ConcurrentDictionary<string, OperationState>();
+                    OperationState<T> result = null;
                     while (reader.Read())
                     {
-                        var operationId = (string)reader["OperationId"];
-                        result[operationId] = new OperationState
+                        var isException = (bool)reader["IsException"];
+                        var state = (string)reader["State"];
+                        if (isException)
+                            return new OperationState<T>
+                            {
+                                Exception = JsonConvert.DeserializeObject<ProcessException>(state, _jsonSettings)
+                            };
+                        return new OperationState<T>
                         {
-                            IsException = (bool)reader["IsException"],
-                            State = (string)reader["State"]
+                            Value = JsonConvert.DeserializeObject<T>(state, _jsonSettings)
                         };
                     }
-                    return result;
+                    return null;
                 }
             }
         }

@@ -51,13 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gaev.DurableTask.Json\Gaev.DurableTask.Json.csproj">
+    <ProjectReference Include="..\Gaev.DurableTask.Storage\Gaev.DurableTask.Storage.csproj">
       <Project>{c0e2ee39-4950-468a-9fe4-936f38324bc2}</Project>
-      <Name>Gaev.DurableTask.Json</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Gaev.DurableTask.MsSql\Gaev.DurableTask.MsSql.csproj">
-      <Project>{63f1f58b-bf98-4ffb-9ae1-f2077535773b}</Project>
-      <Name>Gaev.DurableTask.MsSql</Name>
+      <Name>Gaev.DurableTask.Storage</Name>
     </ProjectReference>
     <ProjectReference Include="..\Gaev.DurableTask\Gaev.DurableTask.csproj">
       <Project>{8d3cb1e2-9322-49d1-a620-7d1e9bd89e19}</Project>

@@ -2,7 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Gaev.DurableTask.Json
+namespace Gaev.DurableTask.Storage
 {
     public class ProcessExceptionSerializer : JsonConverter
     {
