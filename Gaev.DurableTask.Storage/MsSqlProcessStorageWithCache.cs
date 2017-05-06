@@ -70,6 +70,8 @@ namespace Gaev.DurableTask.Storage
                 cmd.CommandText = DeleteProcessQuery;
                 cmd.ExecuteNonQuery();
             }
+            ConcurrentDictionary<string, OperationState> _;
+            _cache.TryRemove(processId, out _);
         }
 
         public IEnumerable<string> GetPendingProcessIds()

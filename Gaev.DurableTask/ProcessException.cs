@@ -2,7 +2,7 @@
 
 namespace Gaev.DurableTask
 {
-    public class ProcessException : Exception
+    public sealed class ProcessException : Exception
     {
         public ProcessException(string message, string type) : base(message)
         {

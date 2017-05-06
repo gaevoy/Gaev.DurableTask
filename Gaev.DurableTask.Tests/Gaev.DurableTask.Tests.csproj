@@ -39,8 +39,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Examples\Schedule.cs" />
@@ -50,11 +52,13 @@
     <Compile Include="GeneralTests.cs" />
     <Compile Include="Examples\DelayedJobHandler.cs" />
     <Compile Include="ProcessHostTests.cs" />
+    <Compile Include="ProcessStorageTests.cs" />
     <Compile Include="ProcessTests.cs" />
     <Compile Include="Storage\InMemoryJsonProcessStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
