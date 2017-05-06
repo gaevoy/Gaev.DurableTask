@@ -9,8 +9,8 @@ namespace Gaev.DurableTask.ConsolePlayground
     {
         static void Main(string[] args)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["Sql"].ConnectionString;
-            using (var host = new ProcessHost(new MsSqlProcessStorageWithCache(connectionString)))
+            // using (var host = new ProcessHost(new MsSqlProcessStorageWithCache(ConfigurationManager.ConnectionStrings["Sql"].ConnectionString)))
+            using (var host = new ProcessHost(new FileSystemProcessStorage()))
             {
                 var creditCardFlow = new CreditCardFlow(host);
                 creditCardFlow.RegisterProcess();
