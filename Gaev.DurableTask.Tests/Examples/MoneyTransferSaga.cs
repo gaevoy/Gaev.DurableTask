@@ -66,7 +66,7 @@ public class MoneyTransferSaga
 
     static void Main(string[] args)
     {
-        using (var host = new ProcessHost(new MsSqlProcessStorage("...")))
+        using (var host = new ProcessHost(new FileSystemProcessStorage()))
         {
             var saga = new MoneyTransferSaga(host, new TransferService());
             saga.RegisterForResuming();

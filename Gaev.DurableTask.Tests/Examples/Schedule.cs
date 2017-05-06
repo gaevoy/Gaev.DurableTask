@@ -47,7 +47,7 @@ public class Schedule
 
     static void Main(string[] args)
     {
-        using (var host = new ProcessHost(new MsSqlProcessStorage("...")))
+        using (var host = new ProcessHost(new FileSystemProcessStorage()))
         {
             var schedule = new Schedule(host, new SmtpClient());
             schedule.RegisterForResuming();

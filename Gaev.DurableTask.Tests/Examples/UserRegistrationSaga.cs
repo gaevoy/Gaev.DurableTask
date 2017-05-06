@@ -53,7 +53,7 @@ public class UserRegistrationSaga
 
     static void Main(string[] args)
     {
-        using (var host = new ProcessHost(new MsSqlProcessStorage("...")))
+        using (var host = new ProcessHost(new FileSystemProcessStorage()))
         {
             var saga = new UserRegistrationSaga(host, new UserService());
             saga.RegisterForResuming();
