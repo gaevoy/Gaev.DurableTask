@@ -14,24 +14,21 @@ namespace Gaev.DurableTask
             }, id);
         }
 
-        public static Task<DelayResult> Delay(this IProcess process, TimeSpan delay, string id)
+        public static async Task<DelayResult> Delay(this IProcess process, TimeSpan delay, string id)
         {
-            var desired = DateTime.UtcNow + delay;
-            return process.Do(async () =>
+            var result = await process.Get(new DelayResult { Desired = DateTime.UtcNow + delay }, id);
+            if (result.Actual == null)
             {
-                var result = new DelayResult
-                {
-                    Desired = await process.Get(desired, id + ".Saved")
-                };
                 delay = result.Desired - DateTime.UtcNow;
                 if (delay > TimeSpan.Zero)
                 {
-                    await process.Do(() => Task.Delay(delay, process.Cancellation), id + ".Completed");
+                    await Task.Delay(delay, process.Cancellation);
                     result.OnTime = true;
                 }
                 result.Actual = DateTime.UtcNow;
-                return result;
-            }, id);
+                await process.Set(result, id);
+            }
+            return result;
         }
 
         public static T As<T>(this IProcess process) where T : IProcess

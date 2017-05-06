@@ -76,6 +76,22 @@ namespace Gaev.DurableTask.Tests
         }
 
         [Test]
+        public async Task It_should_not_delay_2nd_time()
+        {
+            // Given
+            var proc = NewProcess();
+            await proc.Delay(TimeSpan.FromMilliseconds(500), "op1");
+
+            // When
+            var duration = Stopwatch.StartNew();
+            await proc.Delay(TimeSpan.FromMilliseconds(500), "op1");
+            duration.Stop();
+
+            // Then
+            Assert.Less(duration.ElapsedMilliseconds, 500);
+        }
+
+        [Test]
         public async Task It_should_resume_delay_execution()
         {
             // Given
