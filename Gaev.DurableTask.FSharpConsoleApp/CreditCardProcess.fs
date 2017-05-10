@@ -5,8 +5,7 @@ open Gaev.DurableTask
 module App =
 
     type Microsoft.FSharp.Control.AsyncBuilder with
-      member x.Bind(t:Task<'T>, f:'T -> Async<'R>) : Async<'R>  = 
-        async.Bind(Async.AwaitTask t, f)
+        member x.Bind(t:Task<'T>, f:'T -> Async<'R>) : Async<'R> = async.Bind(Async.AwaitTask t, f)
 
     type CreditCardProcess(proc : IProcess) = 
         inherit ProcessWrapper(proc)
@@ -18,9 +17,9 @@ module App =
                 onCreditCardDeleted.TrySetCanceled() |> ignore
             )), null) |> ignore
         member this.RaiseOnTransactionAppeared() = onTransactionAppeared.TrySetResult(null)
-        member this.OnTransactionAppeared() = onTransactionAppeared.Task :> Task
+        member this.OnTransactionAppeared() = onTransactionAppeared.Task
         member this.RaiseOnCreditCardDeleted() = onCreditCardDeleted.TrySetResult(null)
-        member this.OnCreditCardDeleted() = onCreditCardDeleted.Task :> Task
+        member this.OnCreditCardDeleted() = onCreditCardDeleted.Task
 
     type CreditCardFlow(host : IProcessHost) =
 
@@ -37,18 +36,18 @@ module App =
             } |> Async.StartAsTask
 
         let DurableTask(processId:string, creditCard: string, companyId: string) = 
-            async {
-                use proc = host.Spawn(processId).As<CreditCardProcess>()
+            let proc = host.Spawn(processId).As<CreditCardProcess>()
+            Async.StartAsTask(async {
+                use _ = proc
                 let! companyId = proc.Get(companyId, "1")
                 let! creditCard = proc.Get(creditCard, "2")
-                Console.WriteLine("CreditCardFlow is up for companyId="+companyId+" creditCard="+creditCard);
-                let! email = proc.Do((fun () -> GetEmail(companyId)), "3");
-                do! proc.Do((fun () -> SendEmail(email, creditCard+" was assigned to you")), "4");
-                let onDeleted = proc.Do((fun() -> proc.OnCreditCardDeleted()), "7");
-                do! onDeleted |> Async.AwaitTask
-                do! proc.Do((fun () -> SendEmail(email, creditCard+" was deleted")), "10");
+                Console.WriteLine("CreditCardFlow is up for companyId="+companyId+" creditCard="+creditCard)
+                let! email = proc.Do((fun () -> GetEmail(companyId)), "3")
+                do! proc.Do((fun () -> SendEmail(email, creditCard+" was assigned to you")), "4")
+                let! _ = proc.Do((fun () -> proc.OnCreditCardDeleted()), "7")
+                do! proc.Do((fun () -> SendEmail(email, creditCard+" was deleted")), "10")
                 return ()
-            } |> Async.StartAsTask
+            }, cancellationToken = proc.Cancellation)
 
         member this.Start(creditCard: string, companyId: string) =
             let processId = "CreditCardFlow" + creditCard
